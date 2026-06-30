@@ -12,10 +12,6 @@ forts, beaches, national parks, airports — sitting in front of you, up to 100 
   <a href="https://kaaise.whatistheurl.com/"><strong>🔗 Live demo — kaaise.whatistheurl.com</strong></a>
 </p>
 
-> This is a **different app** from Kotsethe (the `which-direction/` sub-app). Kotsethe guides
-> you to **one place you searched for**; *What's There?* surfaces **many notable places**
-> around you as you sweep your phone. They share no code.
-
 ## Install on your phone
 
 What's There? is a PWA (`manifest.json` + `sw.js`):
