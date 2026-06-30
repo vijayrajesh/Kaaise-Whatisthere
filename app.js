@@ -205,6 +205,11 @@ const debugContent = document.getElementById('debug-content');
 const debugCopy = document.getElementById('debug-copy');
 const debugClose = document.getElementById('debug-close');
 
+// Debug tooling is for development only — reveal the button only with ?debug=1.
+if (new URLSearchParams(location.search).has('debug')) {
+    debugBtn.classList.remove('hidden');
+}
+
 function buildDebugText() {
     const f = (n, d = 5) => (n === null || n === undefined || isNaN(n)) ? '-' : Number(n).toFixed(d);
     const heading = currentHeading === null ? null : ((currentHeading % 360) + 360) % 360;

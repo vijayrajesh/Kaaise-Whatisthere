@@ -113,8 +113,8 @@
                     <button id="settings-close">Done</button>
                 </div>
 
-                <!-- Debug toggle + panel -->
-                <button id="debug-btn" aria-label="Toggle debug info" title="Debug info">DEBUG</button>
+                <!-- Debug toggle + panel (hidden unless the URL has ?debug=1) -->
+                <button id="debug-btn" class="hidden" aria-label="Toggle debug info" title="Debug info">DEBUG</button>
                 <div id="debug-panel" class="hidden">
                     <pre id="debug-content">No data yet.</pre>
                     <div class="debug-actions">

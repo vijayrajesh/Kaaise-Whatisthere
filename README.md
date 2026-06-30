@@ -8,6 +8,10 @@ forts, beaches, national parks, airports — sitting in front of you, up to 100 
   <img src="screenshot.jpg" alt="Kaaise — notable places in the direction you're pointing, with a scanning beam on a rotating compass map" width="320">
 </p>
 
+<p align="center">
+  <a href="https://kaaise.whatistheurl.com/"><strong>🔗 Live demo — kaaise.whatistheurl.com</strong></a>
+</p>
+
 > This is a **different app** from Kotsethe (the `which-direction/` sub-app). Kotsethe guides
 > you to **one place you searched for**; *What's There?* surfaces **many notable places**
 > around you as you sweep your phone. They share no code.
@@ -110,3 +114,20 @@ on your phone and tap **Start Exploring**.
 
 Vanilla HTML/CSS/JS · Leaflet.js + leaflet-rotate (rotating map) · Wikidata Query Service
 (places) · OpenStreetMap tiles · Service Worker + Web Manifest (installable PWA).
+
+## Disclaimer
+
+Kaaise is provided **"as is"**, for general informational and convenience use only.
+
+- **Not for safety-critical navigation.** Directions, bearings and distances are approximate
+  and depend on your device's GPS and magnetometer (compass), which can be inaccurate or need
+  calibration. Do not rely on it where a wrong direction could be dangerous.
+- **Place data** comes from the **Wikidata Query Service** and may be incomplete, outdated, or
+  incorrect.
+- **Map tiles** are © **OpenStreetMap** contributors.
+- Use at your own risk. To the extent permitted by law, the author accepts no liability for any
+  loss or damage arising from use of this app (see the [LICENSE](LICENSE)).
+
+## License
+
+[MIT](LICENSE) © 2026 Rajeshkannan MJ
