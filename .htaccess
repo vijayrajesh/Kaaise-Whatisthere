@@ -1,0 +1,22 @@
+# Cache policy for "What's There?" (Apache / Hostinger)
+# The HTML shell, service worker, manifest and version file must always be
+# revalidated so a redeploy is picked up immediately. app.js / index.css are
+# already cache-busted with ?v=<timestamp> in index.html, so they're safe to
+# cache and are not matched here.
+
+<IfModule mod_headers.c>
+    # Entry document + control files: never cache
+    <FilesMatch "(^|/)(index\.html|sw\.js|version\.json|manifest\.json)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Fallback for hosts that honour mod_expires instead of headers
+<IfModule mod_expires.c>
+    ExpiresActive On
+    <FilesMatch "(^|/)(index\.html|sw\.js|version\.json|manifest\.json)$">
+        ExpiresDefault "access plus 0 seconds"
+    </FilesMatch>
+</IfModule>

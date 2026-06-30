@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Never cache the entry document so a redeploy is picked up on next load -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>What's There?</title>
+    <meta name="description" content="Discover popular places in the direction you are pointing.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="apple-touch-icon-180.png">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="What's There?">
+
+    <!-- Critical CSS: keeps hidden elements hidden and the background dark even
+         before index.css finishes loading, so there's never an unstyled flash. -->
+    <style>
+        html, body { background: #0f172a; margin: 0; }
+        .hidden { display: none !important; }
+    </style>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Cache-busted but render-blocking, so the page never paints unstyled (no FOUC).
+         document.write here runs during parse, which blocks rendering until the CSS loads. -->
+    <script>
+        document.write(`<link rel="stylesheet" href="index.css?v=${new Date().getTime()}">`);
+    </script>
+</head>
+<body>
+    <div id="app">
+        <!-- Update banner: shown when a newer deployed version is detected -->
+        <button id="update-banner" class="hidden">🔄 New version available — tap to update</button>
+
+        <!-- Start overlay for iOS permission -->
+        <div id="start-overlay" class="overlay active">
+            <div class="overlay-content">
+                <h1>What's There?</h1>
+                <p>Point your phone to discover nearby places.</p>
+                <button id="start-btn">Start Exploring</button>
+            </div>
+        </div>
+
+        <div id="main-content">
+            <div id="list-container">
+                <div class="header">
+                    <div class="brand">Kaaise</div>
+                    <div class="header-right">
+                        <button id="about-btn" class="about-button" type="button" aria-label="About" title="About">
+                            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <line x1="12" y1="11" x2="12" y2="16.5"></line>
+                                <circle cx="12" cy="7.6" r="0.7" fill="currentColor" stroke="none"></circle>
+                            </svg>
+                        </button>
+                        <div class="compass-wrap">
+                            <div class="compass">
+                                <span class="compass-tick compass-tick-n">N</span>
+                                <span class="compass-tick compass-tick-e">E</span>
+                                <span class="compass-tick compass-tick-s">S</span>
+                                <span class="compass-tick compass-tick-w">W</span>
+                                <div class="compass-needle" id="compass-arrow"></div>
+                            </div>
+                            <span class="compass-label" id="heading-text">—</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="places-list" class="places-list">
+                    <div class="loading-state" id="loading-text">Waiting for location...</div>
+                </div>
+            </div>
+            <!-- Drag handle to resize the list / map split -->
+            <div id="resizer" role="separator" aria-label="Resize map" title="Drag to resize">
+                <div class="resizer-grip"></div>
+            </div>
+            <div id="map-wrapper">
+                <div id="map-container">
+                    <!-- Leaflet map injects here -->
+                </div>
+                <!-- Recenter button (lives outside the rotating map so it stays upright) -->
+                <button id="recenter-btn" aria-label="Go to my current location" title="My location">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M12 2v3" />
+                        <path d="M12 19v3" />
+                        <path d="M2 12h3" />
+                        <path d="M19 12h3" />
+                    </svg>
+                </button>
+
+                <!-- Banner showing the place tapped in the list (stays upright) -->
+                <div id="selected-banner"></div>
+
+                <!-- Settings toggle + panel -->
+                <button id="settings-btn" aria-label="Settings" title="Settings">⚙</button>
+                <div id="settings-panel" class="hidden">
+                    <label for="beam-width-range">Beam width: <span id="beam-width-value"></span> km</label>
+                    <input type="range" id="beam-width-range" min="2" max="40" step="1">
+                    <button id="rescan-btn">↻ Rescan this area (ignore cache)</button>
+                    <button id="settings-close">Done</button>
+                </div>
+
+                <!-- Debug toggle + panel -->
+                <button id="debug-btn" aria-label="Toggle debug info" title="Debug info">DEBUG</button>
+                <div id="debug-panel" class="hidden">
+                    <pre id="debug-content">No data yet.</pre>
+                    <div class="debug-actions">
+                        <button id="debug-copy">Copy</button>
+                        <button id="debug-close">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About dialog -->
+    <div id="about-modal" class="about-modal hidden" role="dialog" aria-modal="true" aria-label="About Kaaise">
+        <div class="about-card">
+            <button id="about-close" class="about-close" type="button" aria-label="Close">&times;</button>
+            <p class="about-invocation">திருச்சிற்றம்பலம்</p>
+            <div class="about-name">Kaaise</div>
+            <p class="about-sivam">அன்பே சிவம்</p>
+            <p class="about-credit">Coded by <strong>Rajeshkannan&nbsp;MJ</strong> with&nbsp;AI</p>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- leaflet-rotate: proper map rotation that keeps dragging in sync -->
+    <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate-src.js"></script>
+    <script>
+        const script = document.createElement('script');
+        script.src = `app.js?v=${new Date().getTime()}`;
+        document.body.appendChild(script);
+    </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Logs
+*.log
+
+# Archives / backups
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Env / secrets
+.env*
+
+# Local dev/test helpers (personal, not published)
+serve.bat
