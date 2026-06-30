@@ -4,6 +4,10 @@ An installable web app (PWA) that turns your phone into a **pointing radar**: ho
 aim it in any direction, and it reveals the notable places — cities, towns, mountains, lakes,
 forts, beaches, national parks, airports — sitting in front of you, up to 100 km away.
 
+<p align="center">
+  <img src="screenshot.png" alt="Kaaise — notable places in the direction you're pointing, with a scanning beam on a rotating compass map" width="320">
+</p>
+
 > This is a **different app** from Kotsethe (the `which-direction/` sub-app). Kotsethe guides
 > you to **one place you searched for**; *What's There?* surfaces **many notable places**
 > around you as you sweep your phone. They share no code.
